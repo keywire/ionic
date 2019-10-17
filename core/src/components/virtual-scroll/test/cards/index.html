@@ -12,12 +12,22 @@
   <script type="module" src="../../../../../dist/ionic/ionic.esm.js"></script></head>
 
 <body>
+<style>
+  .base {
+    transition: height 5s linear;
+  }
+  .hideMe {
+    background-color: blue;
+    color: red;
+    transition: height 5s linear;
+    height: 0;
+  }
+</style>
   <ion-app>
-
-
     <ion-header>
       <ion-toolbar>
         <ion-title>Ionic woooop demo</ion-title>
+        <div class="base" onclick="yahboo(event)">Hello</div>
       </ion-toolbar>
     </ion-header>
 
@@ -25,22 +35,25 @@
 
       <ion-virtual-scroll id="virtual">
         <template>
-          <ion-card>
-            <ion-card-header>
+          <ion-card class="base">
+            <ion-card-header class="base">
               <ion-card-title>Card Header <span class="name-number"></span></ion-card-title>
             </ion-card-header>
             <ion-card-content class="content">
             </ion-card-content>
-            <ion-button onclick="">remove item</ion-button>
+            <div class="newButton"></div>
           </ion-card>
         </template>
       </ion-virtual-scroll>
-
     </ion-content>
-
   </ion-app>
 
+
   <script>
+    function yahboo(event) {
+      console.log("yahboo");
+      event.target.classList.toggle("hideMe");
+    }
     const virtual = document.getElementById('virtual');
     console.dir(virtual);
     virtual.approxItemHeight = 200;
@@ -49,19 +62,35 @@
         return 'Header ' + index;
       }
       return null;
-    }
+    };
 
     function renderItem(el, item) {
-      el.querySelector('.content').textContent = item.content;
-      el.querySelector('.name-number').textContent = item.index;
-      el.querySelector('ion-button').addEventListener('click', () => {
-          console.log('item clicked', item.index);
-          virtual.removeItem(item.index).then((res) => {
-              console.log('removed item', res);
-          })
+      el.querySelector('.content').textContent = `${item.content} ${item.index}`;
+      // el.querySelector('.name-number').textContent = item.index;
+      // console.log("adding listener to element");
+      // el.querySelector('ion-button').addEventListener('click', event => {
+      //     console.log('item clicked', item.index);
+      //     virtual.removeItem(item.index).then((res) => {
+      //         console.log('removed item', res);
+      //     });
+      //     return true;
+      // });
+      const existingButtons = el.querySelectorAll('ion-button');
+      existingButtons.forEach(button => {
+        button.remove();
       });
-      el.style.backgroundColor = 'white';
-      console.dir(el);
+
+      const newButton = document.createElement('ion-button');
+      newButton.addEventListener('click', event => {
+        console.log(`BUTTON CLICKED - index ${item.index}`);
+        virtual.removeItem(el, item.index).then(res => {
+          console.log(`REMOVED ITEM ${res}`);
+        });
+      });
+      newButton.textContent = `remove ${item.index} please`;
+      el.appendChild(newButton);
+
+      el.style.backgroundColor = 'lightgreen';
       return el;
     }
 
@@ -85,6 +114,7 @@
           index: i
       });
     }
+    console.log("SETTING ITEMS ON VIRTUAL SCROLL");
     virtual.items = items;
   </script>
 

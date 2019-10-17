@@ -299,59 +299,123 @@ export const positionForIndex = (index: number, cells: Cell[], heightIndex: Uint
   return -1;
 };
 
-export const removeItem = (index: number, nodes: VirtualNode[], cells: Cell[], heightIndex: Uint32Array, totalHeight: number): any => {
-  console.log('nodes before change', nodes);
-  console.log('cells before change', cells);
-  console.log('heightIndex before change', heightIndex);
-
+// export const removeItem = (index: number, nodes: VirtualNode[], cells: Cell[], heightIndex: Uint32Array, totalHeight: number): any => {
+export const removeItem = (index: number, items: any[], nodes: VirtualNode[], cells: Cell[], heightIndex: Uint32Array, totalHeight: number): number => {
+  console.log(`virtual-scroll-utils: Remove item at ${index}`);
   const nodeToRemove = nodes.find(n => {
     return n.cell.index === index && n.cell.type === CELL_TYPE_ITEM;
   });
 
   const updatedNodes: VirtualNode[] = [];
   const updatedCells: Cell[] = [];
+  const updatedItems: any[] = [];
 
   if (nodeToRemove) {
     const nodeIndex = nodeToRemove.cell.i;
+    console.log(`virutal-scroll-utils: WILL REMOVE: index - ${index}; nodeIndex - ${nodeIndex} `, nodeToRemove);
 
-    updatedNodes.forEach((node, i) => {
-      if (node.cell.i > nodeIndex) {
-        node.cell.i = i - 1;
-        updatedNodes.push(node);
+    // nodes.forEach((node, i) => {
+    //   if (node.cell.i > nodeIndex) {
+    //     node.cell.i = i - 1;
+    //     updatedNodes.push(node);
+    //   } else if (i < nodeIndex) {
+    //     updatedNodes.push(node);
+    //   }
+    // });
+    // nodes = updatedNodes;
+    //
+    // cells.forEach((cell, i) => {
+    //   if (cell.i > nodeIndex) {
+    //     cell.i = i - 1;
+    //     updatedCells.push(cell);
+    //   } else if (i < nodeIndex) {
+    //     updatedCells.push(cell);
+    //   }
+    // });
+    // cells = updatedCells;
+
+    items.forEach((item, i) => {
+      if (item.index > nodeIndex) {
+        item.index = i - 1;
+        updatedItems.push(item);
       } else if (i < nodeIndex) {
-        updatedNodes.push(node);
+        updatedItems.push(item);
       }
     });
-    nodes = updatedNodes;
-
-    cells.forEach((cell, i) => {
-      if (cell.i > nodeIndex) {
-        cell.i = i - 1;
-        updatedCells.push(cell);
-      } else if (i < nodeIndex) {
-        updatedCells.push(cell);
-      }
-    });
-    cells = updatedCells;
-
-    heightIndex.forEach((_, i) => {
-      if (i > nodeIndex) {
-        heightIndex[i] = (heightIndex[i] - nodeToRemove.cell.height);
-      }
-    });
-    const buf1 = heightIndex.slice(0, nodeIndex);
-    const buf2 = heightIndex.slice(nodeIndex + 1, heightIndex.length);
-    heightIndex = appendBuffer(buf1, buf2);
-    heightIndex = resizeBuffer(heightIndex, cells.length);
-
-    console.log('nodes after change', nodes);
-    console.log('cells after change', cells);
-    console.log('heightIndex after change', heightIndex);
-
-    return totalHeight - nodeToRemove.cell.height;
+    items = updatedItems;
+    //
+    // heightIndex.forEach((_, i) => {
+    //   if (i > nodeIndex) {
+    //     heightIndex[i] = (heightIndex[i] - nodeToRemove.cell.height);
+    //   }
+    // });
+    // const buf1 = heightIndex.slice(0, nodeIndex);
+    // const buf2 = heightIndex.slice(nodeIndex + 1, heightIndex.length);
+    // heightIndex = appendBuffer(buf1, buf2);
+    // heightIndex = resizeBuffer(heightIndex, cells.length);
+    //
+    // console.log('nodes after change', nodes);
+    // console.log('cells after change', cells);
+    // console.log('heightIndex after change', heightIndex);
+    //
+    // return totalHeight - nodeToRemove.cell.height;
   }
   return totalHeight;
 };
+
+// export const removeItem = (index: number, nodes: VirtualNode[], cells: Cell[], heightIndex: Uint32Array, totalHeight: number): any => {
+//   console.log('nodes before change', nodes);
+//   console.log('cells before change', cells);
+//   console.log('heightIndex before change', heightIndex);
+//
+//   const nodeToRemove = nodes.find(n => {
+//     return n.cell.index === index && n.cell.type === CELL_TYPE_ITEM;
+//   });
+//
+//   const updatedNodes: VirtualNode[] = [];
+//   const updatedCells: Cell[] = [];
+//
+//   if (nodeToRemove) {
+//     const nodeIndex = nodeToRemove.cell.i;
+//
+//     updatedNodes.forEach((node, i) => {
+//       if (node.cell.i > nodeIndex) {
+//         node.cell.i = i - 1;
+//         updatedNodes.push(node);
+//       } else if (i < nodeIndex) {
+//         updatedNodes.push(node);
+//       }
+//     });
+//     nodes = updatedNodes;
+//
+//     cells.forEach((cell, i) => {
+//       if (cell.i > nodeIndex) {
+//         cell.i = i - 1;
+//         updatedCells.push(cell);
+//       } else if (i < nodeIndex) {
+//         updatedCells.push(cell);
+//       }
+//     });
+//     cells = updatedCells;
+//
+//     heightIndex.forEach((_, i) => {
+//       if (i > nodeIndex) {
+//         heightIndex[i] = (heightIndex[i] - nodeToRemove.cell.height);
+//       }
+//     });
+//     const buf1 = heightIndex.slice(0, nodeIndex);
+//     const buf2 = heightIndex.slice(nodeIndex + 1, heightIndex.length);
+//     heightIndex = appendBuffer(buf1, buf2);
+//     heightIndex = resizeBuffer(heightIndex, cells.length);
+//
+//     console.log('nodes after change', nodes);
+//     console.log('cells after change', cells);
+//     console.log('heightIndex after change', heightIndex);
+//
+//     return totalHeight - nodeToRemove.cell.height;
+//   }
+//   return totalHeight;
+// };
 
 const appendBuffer = (buffer1: Uint32Array, buffer2: Uint32Array) => {
   const tmp = new Uint32Array(buffer1.length + buffer2.length);

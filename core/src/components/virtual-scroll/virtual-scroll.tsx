@@ -177,6 +177,7 @@ export class VirtualScroll implements ComponentInterface {
   @Watch('footerHeight')
   @Watch('items')
   itemsChanged() {
+    console.log("ITEMS CHANGED");
     this.calcCells();
     this.updateVirtualScroll();
   }
@@ -269,15 +270,30 @@ export class VirtualScroll implements ComponentInterface {
   }
 
   @Method()
-  async removeItem(index: number): Promise<void> {
-    console.log('removeItem, cells', this.cells);
-    this.animateChange = true;
-    return Promise.resolve(this.updateVD(index));
-  }
+  async removeItem(el: HTMLElement, index: number): Promise<number> {
+    return new Promise((resolve, _reject)=> {
+      this.getHeightIndex();
+      if (this.heightIndex) {
+        this.animateChange = true;
+        if (this.items) {
+          // this.totalHeight = removeItem(index, this.items, this.virtualDom, this.cells, this.heightIndex, this.totalHeight);
 
-  updateVD(index: number) {
-    this.totalHeight = removeItem(index, this.virtualDom, this.cells, this.getHeightIndex(), this.totalHeight);
-    this.scheduleUpdate();
+          const cardHeader = el.querySelector('ion-card-header');
+          if (cardHeader) cardHeader.classList.toggle('hideMe');
+
+          // this.items = this.items.filter(item => {
+          //   return (item.index !== index)
+          // });
+
+          // this.indexDirty = Infinity;
+          this.indexDirty = 0;
+          this.scheduleUpdate();
+
+        }
+        // this.totalHeight = removeItem(index, this.virtualDom, this.cells, this.heightIndex, this.totalHeight);
+      }
+      resolve(index);
+    });
   }
 
   private onScroll = () => {
@@ -286,6 +302,7 @@ export class VirtualScroll implements ComponentInterface {
 
   private updateVirtualScroll() {
     // do nothing if virtual-scroll is disabled
+    console.log('UPDATE VIRTUAL SCROLL ENTER');
     if (!this.isEnabled || !this.scrollEl) {
       return;
     }
